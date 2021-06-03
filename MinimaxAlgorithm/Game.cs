@@ -7,30 +7,34 @@ namespace MinimaxAlgorithm
     {
         public int Size { get; }
 
-        public char Player { get; }
+        public Player CurrentPlayer { get; private set; }
 
-        private readonly List<char> _board;
+        public IEnumerable<int> EmptyCellIndexes => Enumerable.Range(0, _board.Count)
+            .Where(index => _board[index] == Player.Empty)
+            .ToList();
+
+        private readonly List<Player> _board;
 
         public Game(int size = 3)
         {
-            _board = new List<char>();
             Size = size;
-            Player = 'X';
+            CurrentPlayer = Player.First;
+            _board = Enumerable.Repeat(Player.Empty, Size * Size).ToList();
         }
 
-        public void Initialize()
+        public Game(Game other)
         {
-            char[] array = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-            _board.Clear();
-            _board.AddRange(array);
+            Size = other.Size;
+            CurrentPlayer = other.CurrentPlayer;
+            _board = new List<Player>(other._board);
         }
 
         public bool IsMoveValid(int index)
         {
-            return index >= 0 && index < Size * Size && _board[index] == ' ';
+            return index >= 0 && index < Size * Size && _board[index] == Player.Empty;
         }
 
-        public void SetMove(int index, char player)
+        public void SetMove(int index, Player player)
         {
             if (IsMoveValid(index))
             {
@@ -38,12 +42,13 @@ namespace MinimaxAlgorithm
             }
         }
 
-        public char? GetWinner()
+        public Player? GetWinner()
         {
             // Check columns
             for (var col = 0; col < Size; col++)
             {
-                if (_board[col] != ' ' && _board[col] == _board[col + Size] && _board[col] == _board[col + Size * 2])
+                if (_board[col] != Player.Empty && _board[col] == _board[col + Size] &&
+                    _board[col] == _board[col + Size * 2])
                 {
                     return _board[col];
                 }
@@ -53,7 +58,7 @@ namespace MinimaxAlgorithm
             for (var row = 0; row < Size; row++)
             {
                 var rowIndex = Size * row;
-                if (_board[rowIndex] != ' ' && _board[rowIndex] == _board[rowIndex + 1] &&
+                if (_board[rowIndex] != Player.Empty && _board[rowIndex] == _board[rowIndex + 1] &&
                     _board[rowIndex] == _board[rowIndex + 2])
                 {
                     return _board[rowIndex];
@@ -61,23 +66,28 @@ namespace MinimaxAlgorithm
             }
 
             // Check two diagonals
-            if (_board[0] != ' ' && _board[0] == _board[4] && _board[0] == _board[8])
+            if (_board[0] != Player.Empty && _board[0] == _board[4] && _board[0] == _board[8])
             {
                 return _board[0];
             }
 
-            if (_board[2] != ' ' && _board[2] == _board[4] && _board[2] == _board[6])
+            if (_board[2] != Player.Empty && _board[2] == _board[4] && _board[2] == _board[6])
             {
                 return _board[2];
             }
 
             // Board full?
-            if (_board.All(cell => cell != ' '))
+            if (_board.All(cell => cell != Player.Empty))
             {
-                return ' ';
+                return Player.Empty;
             }
 
             return null;
+        }
+
+        public void GoNextPlayer()
+        {
+            CurrentPlayer = CurrentPlayer == Player.First ? Player.Second : Player.First;
         }
 
         public override string ToString()
@@ -85,13 +95,13 @@ namespace MinimaxAlgorithm
             var ret = "";
             for (var row = 0; row < Size; row++)
             {
-                ret += "|";
+                ret += '|';
                 for (var col = 0; col < Size; col++)
                 {
-                    ret += " " + _board[col + row * Size] + " |";
+                    ret += " " + _board[col + row * Size].ToChar() + " |";
                 }
 
-                ret += "\n";
+                ret += '\n';
             }
 
             return ret;

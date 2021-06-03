@@ -7,7 +7,6 @@ namespace MinimaxAlgorithm
         static void Main(string[] args)
         {
             var game = new Game();
-            game.Initialize();
             Console.Write(game);
         }
     }
