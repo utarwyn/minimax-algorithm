@@ -1,4 +1,5 @@
-﻿using MinimaxAlgorithm;
+﻿using System;
+using MinimaxAlgorithm;
 using NUnit.Framework;
 
 namespace MinimaxTests
@@ -15,7 +16,21 @@ namespace MinimaxTests
         }
 
         [Test]
-        public void BlockOtherToWin()
+        public void DirectMoveToWin()
+        {
+            _game.SetMove(3, Player.First);
+            _game.SetMove(6, Player.First);
+            _game.SetMove(7, Player.First);
+            _game.SetMove(0, Player.Second);
+            _game.SetMove(1, Player.Second);
+            var (score, index) = Minimax.Instance.MaxAlphaBeta(_game);
+
+            Assert.AreEqual(1, score);
+            Assert.AreEqual(2, index);
+        }
+
+        [Test]
+        public void DirectMoveToBlockOpponent()
         {
             _game.SetMove(0, Player.First);
             _game.SetMove(3, Player.First);
@@ -32,7 +47,7 @@ namespace MinimaxTests
         }
 
         [Test]
-        public void MaximizeChancesToWin()
+        public void BestMoveToBlockOpponent()
         {
             _game.SetMove(0, Player.First);
             _game.SetMove(7, Player.First);
